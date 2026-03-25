@@ -1,0 +1,8 @@
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\BatchImageCropper.exe
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\BatchImageCropper.dll
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\BatchImageCropper.deps.json
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\BatchImageCropper.runtimeconfig.json
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\BatchImageCropper.pdb
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\Serilog.dll
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\Serilog.Sinks.Console.dll
+C:\Users\xpow3r\Desktop\BatchImageCropper\BatchImageCropper_FrameworkDependent\Serilog.Sinks.File.dll
