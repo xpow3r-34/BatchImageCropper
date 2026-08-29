@@ -1,0 +1,194 @@
+﻿<Window x:Class="BatchImageCropper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Batch Image Cropper" 
+        Icon="/bic.ico"
+        Height="600" 
+        Width="800"
+        AllowDrop="True"
+        DragEnter="Window_DragEnter"
+        DragLeave="Window_DragLeave"
+        Drop="Window_Drop"
+        KeyDown="Window_KeyDown">
+
+    <DockPanel>
+        <!-- Toolbar (tek satır, dikey araç çubuğu bölücüleri/bantları olmadan yatay dizilir) -->
+        <ToolBar DockPanel.Dock="Top" Background="#F0F0F0">
+            <Button Name="ExportButton" Content="Seçili Alanları Kırp ve Dışarı Aktar" 
+                    Click="Export_Click" Margin="5,2" Background="#BFEFBB"
+                    ToolBar.OverflowMode="Never"/>
+            <Button Name="ClearButton" Content="Fotoğrafları Kaldır" 
+                    Click="Clear_Click" Margin="5,2"
+                    ToolBar.OverflowMode="Never"/>
+            <CheckBox Name="DeleteOriginalsCheckBox" Content="Orijinali Sil" 
+                      Margin="10,2" VerticalAlignment="Center"
+                      ToolBar.OverflowMode="Never"/>
+            <Button Name="ClearCropButton" Content="Seçimi Temizle" 
+                    Click="ClearCrop_Click" Margin="5,2"
+                    ToolBar.OverflowMode="Never"/>
+            <Button Name="OptionsButton" Content="Ayarlar" 
+                    Click="Options_Click" Margin="5,2"
+                    ToolBar.OverflowMode="Never"/>
+            <Button Name="AboutButton" Content="Hakkında" 
+                    Click="About_Click" Margin="5,2"
+                    ToolBar.OverflowMode="Never"/>
+            <CheckBox Name="PreserveMetadataCheckBox" Content="Meta Veriyi Koru" 
+                      IsChecked="True" Margin="10,2"
+                      Checked="PreserveMetadata_Checked" Unchecked="PreserveMetadata_Unchecked"
+                      ToolBar.OverflowMode="Never"/>
+            <CheckBox Name="SyncCheckBox" Content="Senkronize Et" 
+                      IsChecked="False" Checked="Sync_Checked" Unchecked="Sync_Unchecked" Margin="10,2"
+                      ToolBar.OverflowMode="Never"/>
+            <Separator ToolBar.OverflowMode="Never"/>
+            <TextBlock x:Name="LanguageHeadingText" Text="Dil: " VerticalAlignment="Center" Margin="5,0"/>
+            <RadioButton Name="TurkishLanguageButton" GroupName="LangGroup" Content="TR" IsChecked="True" 
+                        Checked="TurkishLanguage_Checked" Margin="2" VerticalAlignment="Center"
+                        ToolBar.OverflowMode="Never"/>
+            <RadioButton Name="EnglishLanguageButton" GroupName="LangGroup" Content="EN" 
+                        Checked="EnglishLanguage_Checked" Margin="2" VerticalAlignment="Center"
+                        ToolBar.OverflowMode="Never"/>
+            <Separator ToolBar.OverflowMode="Never"/>
+            <TextBlock x:Name="RatioHeadingText" Text="Oran: " VerticalAlignment="Center" Margin="5,0"/>
+            <ComboBox x:Name="AspectRatioCombo" Width="88" Margin="5,2"
+                      SelectionChanged="AspectRatio_SelectionChanged" IsEditable="False"
+                      ToolBar.OverflowMode="Never">
+                <ComboBoxItem Tag="0" Content="Serbest"/>
+                <ComboBoxItem Tag="1" Content="1:1"/>
+                <ComboBoxItem Tag="1.333333" Content="4:3"/>
+                <ComboBoxItem Tag="1.5" Content="3:2"/>
+                <ComboBoxItem Tag="1.777778" Content="16:9"/>
+                <ComboBoxItem Tag="1.25" Content="5:4"/>
+                <ComboBoxItem Tag="2.333333" Content="21:9"/>
+                <ComboBoxItem Tag="0.75" Content="3:4"/>
+                <ComboBoxItem Tag="0.666667" Content="2:3"/>
+                <ComboBoxItem Tag="0.5625" Content="9:16"/>
+            </ComboBox>
+            <TextBlock x:Name="PreviewHeadingText" Text="Önizleme: " VerticalAlignment="Center" Margin="10,0,0,0"/>
+            <Slider Name="PreviewSizeSlider" 
+                    Minimum="10" Maximum="100" Value="25" 
+                    Width="90" Margin="5,2"
+                    TickFrequency="5" IsSnapToTickEnabled="True"
+                    ValueChanged="PreviewSizeSlider_ValueChanged"
+                    ToolBar.OverflowMode="Never"/>
+            <TextBlock x:Name="PreviewSizeLabel" Text="25%" VerticalAlignment="Center" Width="40"/>
+        </ToolBar>
+
+        <!-- Status Bar -->
+        <StatusBar DockPanel.Dock="Bottom" Background="#E0E0E0">
+            <StatusBarItem>
+                <TextBlock Name="StatusText" Text="Resimleri sürükleyip buraya bırakın"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar Name="ExportProgress" Width="220" Height="16" Visibility="Collapsed" Margin="10,0"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <Button Name="CancelExportButton" Content="İptal" Visibility="Collapsed" Margin="10,0" Click="CancelExport_Click"/>
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Main Content -->
+        <Grid>
+            <!-- Drop Zone (shown when no images) -->
+            <Border Name="DropZone" 
+                    Background="#F8F8F8" 
+                    BorderBrush="#DDD" 
+                    BorderThickness="2" 
+                    CornerRadius="10"
+                    Margin="20">
+                <Grid>
+                    <TextBlock x:Name="DropZoneText" Text="📁 Resimleri buraya sürükleyin" 
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               Foreground="#888" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"/>
+                </Grid>
+            </Border>
+
+            <!-- Image Grid (shown when images are loaded) -->
+            <ScrollViewer Name="ImageScrollViewer" 
+                        Visibility="Collapsed"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Top">
+                <ItemsControl Name="ImageGrid" HorizontalContentAlignment="Stretch">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Width="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{Binding BorderColor}" 
+                                    BorderThickness="{Binding BorderThickness}"
+                                    Background="White" Margin="4" CornerRadius="3"
+                                    Padding="3">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.3"/>
+                                </Border.Effect>
+                                <Grid Width="{Binding DisplayWidth}">
+
+                                    <!-- Image -->
+                                    <Image Source="{Binding Thumbnail}" 
+                                           Stretch="Fill" 
+                                           Width="{Binding DisplayWidth}"
+                                           Height="{Binding DisplayHeight}"
+                                           Name="DisplayImage"/>
+
+                                    <!-- Crop Canvas -->
+                                    <Canvas Background="Transparent"
+                                            Name="CropCanvas"
+                                            MouseLeftButtonDown="Crop_Start"
+                                            MouseMove="Crop_Move"
+                                            MouseLeftButtonUp="Crop_End"
+                                            Width="{Binding DisplayWidth}"
+                                            Height="{Binding DisplayHeight}">
+
+                                        <!-- Crop Rectangle -->
+                                        <Rectangle Name="CropRectangle"
+                                                  Stroke="#E53935" 
+                                                  StrokeThickness="2" 
+                                                  StrokeDashArray="4,2"
+                                                  Fill="#33E53935"
+                                                  Canvas.Left="{Binding CropX}"
+                                                  Canvas.Top="{Binding CropY}"
+                                                  Width="{Binding CropWidth}"
+                                                  Height="{Binding CropHeight}"/>
+
+                                    </Canvas>
+
+                                    <!-- Image Info -->
+                                    <Border Background="#80000000" CornerRadius="0,0,3,0" 
+                                           HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                                           Margin="0" Padding="5,2">
+                                        <TextBlock Text="{Binding FileName}" 
+                                                  Foreground="White" FontSize="10" 
+                                                  FontWeight="Bold">
+                                            <TextBlock.ToolTip>
+                                                <ToolTip>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Path}"/>
+                                                        <TextBlock Text="{Binding FormattedFileSize}"/>
+                                                        <TextBlock Text="{Binding FormattedCreationTime}"/>
+                                                    </StackPanel>
+                                                </ToolTip>
+                                            </TextBlock.ToolTip>
+                                        </TextBlock>
+                                    </Border>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </DockPanel>
+</Window>

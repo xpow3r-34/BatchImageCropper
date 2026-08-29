@@ -1,0 +1,64 @@
+<Window x:Class="BatchImageCropper.DetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Detay Görünümü" 
+        Icon="/bic.ico"
+        Height="560" 
+        Width="900"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="True">
+    <DockPanel>
+        <ToolBar DockPanel.Dock="Top" Background="#F0F0F0">
+            <Button x:Name="DetailBackButton" Content="← Geri" 
+                    Click="Detail_Back_Click" Margin="5,2"/>
+            <Button x:Name="DetailFitButton" Content="Sığdır" 
+                    Click="Detail_Fit_Click" Margin="5,2"/>
+            <Separator/>
+            <TextBlock x:Name="DetailFileNameLabel" FontWeight="Bold" 
+                       VerticalAlignment="Center" Margin="8,0"/>
+            <TextBlock x:Name="DetailZoomLabel" VerticalAlignment="Center" Margin="12,0"/>
+            <Separator/>
+            <TextBlock x:Name="DetailHintLabel" VerticalAlignment="Center" Margin="8,0" Foreground="#666"/>
+        </ToolBar>
+
+        <ScrollViewer x:Name="DetailScrollViewer"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      PreviewMouseWheel="Detail_PreviewMouseWheel">
+            <Border Margin="14" Padding="4" Background="White" 
+                    BorderBrush="#CCC" BorderThickness="1" CornerRadius="3">
+                <Grid x:Name="DetailContent">
+                    <Grid.LayoutTransform>
+                        <ScaleTransform x:Name="DetailScale" ScaleX="1" ScaleY="1"/>
+                    </Grid.LayoutTransform>
+
+                    <Image x:Name="DetailImage" Source="{Binding Thumbnail}" Stretch="Fill"/>
+
+                    <Canvas Background="Transparent" 
+                            x:Name="DetailCanvas"
+                            MouseLeftButtonDown="Crop_Start"
+                            MouseMove="Crop_Move"
+                            MouseLeftButtonUp="Crop_End"
+                            MouseRightButtonDown="Detail_PanStart"
+                            MouseRightButtonUp="Detail_PanEnd">
+
+                        <Rectangle x:Name="DetailCropRect" Stroke="#E53935" StrokeThickness="2" 
+                                   StrokeDashArray="4,2" Fill="#33E53935" Canvas.Left="0" Canvas.Top="0"
+                                   Width="0" Height="0"/>
+                    </Canvas>
+
+                    <Border Background="#80000000" CornerRadius="0,0,3,0" 
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                            Padding="6,3">
+                        <TextBlock Text="{Binding FileName}" Foreground="White" FontSize="11" FontWeight="Bold"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
